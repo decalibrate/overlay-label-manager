@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en" class="h-100">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="Web UI to manage simple templated text files and browser pages">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-dark-5@1.0.1/dist/css/bootstrap-dark.min.css" 
+        integrity="sha384-jE32d8UwtEkVU+0CGEDCVoyLaLMi0WNVo943iKR2Nrlwb+Dr3PqXW4nzug6tZo+Y" crossorigin="anonymous"> -->
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+
+  <!-- favicon and webmanifest -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- preload codemirror js/css -->
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/codemirror@5.62.0/lib/codemirror.css" as="style">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/codemirror@5.62.0/addon/scroll/simplescrollbars.css"
+    as="style">
+  <link rel="preload" href="/codemirror-liquid-mode.css" as="style">
+
+  <!-- <link rel="preload" href="https://cdn.jsdelivr.net/npm/codemirror@5.62.0/lib/codemirror.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/codemirror@5.62.0/addon/scroll/simplescrollbars.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/codemirror@5.62.0/addon/display/autorefresh.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/codemirror@5.62.0/mode/htmlmixed/htmlmixed.js" as="script">
+    <link rel="preload" href="/codemirror-liquid-mode.js" as="script"> -->
+
+  <title>Overlay Label Manager</title>
+</head>
+
+<body class="d-flex flex-column h-100">
+  <header class="">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid container-xxl">
+        <a class="navbar-brand" href="/">Overlay Label Manager</a>
+        <div class="navbar-text">
+          <div class="font-monospace fw-light text-secondary" id="version" data-bs-toggle="tooltip" title="Oerlay Label Manager version" hidden>v0.1</div>
+          <a class="update-prompt text-primary" href="https://github.com/decalibrate/overlay-label-manager/releases" target="_blank"
+          rel="nofollow, noreferrer" hidden>Update available!</a>
+        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav nav">
+            <li class="nav-item">
+              <a href="#variables-and-labels" class="nav-link active" id="variables-and-labels-tab" data-bs-toggle="tab"
+                role="tab" aria-controls="variables-and-labels" aria-selected="true">Variables &
+                Labels</a>
+            </li>
+            <li class="nav-item">
+              <a href="#configuration" class="nav-link" id="configuration-tab" data-bs-toggle="tab" role="tab"
+                aria-controls="configuration" aria-selected="false">Configuration</a>
+            </li>
+            <li class="nav-item">
+              <a href="#documentation" class="nav-link" id="documentation-tab" data-bs-toggle="tab" role="tab"
+                aria-controls="documentation" aria-selected="false">Documentation</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+
+
+  <div class="container-fluid container-lg main mt-3">
+    <div class="row">
+      <div class="col">
+        <div class="tab-content">
+
+
+
+          <div id="variables-and-labels" class="tab-pane mb-3 active" role="tabpanel"
+            aria-labelledby="variables-and-labels-tab">
+
+
+            <div class="row mb-3" id="variables-content">
+              <div class="col">
+                <h2><i class="pe-3 bi-braces"></i>Variables</h2>
+                <div class="spinner-border variables-spinner" role="status">
+                  <span class="visually-hidden">Requesting Variables...</span>
+                </div>
+                <div class="variables-spinner-fail" hidden>
+                  <h5>Could not load variables</h5>
+                  <p>If you are accessing this page from the machine running the app, please ensure the app has not
+                    terminated unexpectedly and check the log for any errors.</p>
+                </div>
+                <div class="variables-container" hidden>
+                  <div class="d-none d-sm-block">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="row p-2">
+                          <div class="col-4">Name</div>
+                          <div class="col">Value</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <form id="variables" onsubmit="return false;" autocomplete="off"></form>
+                  <div class="mb-3">
+                    <div class="d-grid">
+                      <button type="button" onclick="addNewVariable(null,true);" class="btn btn-light"
+                        title="Add a new variable"><i class="bi-plus"></i></button>
+                    </div>
+                  </div>
+                  <div class="variables_row_template border-bottom vt-line" hidden>
+
+                    <div class="row p-2">
+                      <div class="col">
+                        <div class="row" data-ts>
+                          <div class="col">
+                            <div class="dropdown">
+                              <button class="btn btn-sm btn-primary dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                Choose a variable type ...
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-end">
+                                <li><button class="dropdown-item" href="#" data-to="counter"><i class="bi-piggy-bank"></i>
+                                    Counter</button></li>
+                                <!-- <li><a class="dropdown-item" href="javascript:void(0);" data-to="dt"><i class="bi-calendar-event"></i> Date Time</a></li>
+                                  <li><a class="dropdown-item" href="javascript:void(0);" data-to="timer"><i class="bi-clock-history"></i> Duration</a></li> -->
+                                <li><button class="dropdown-item" href="" data-to="text"><i class="bi-card-text"></i>
+                                    Text</button></li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div fields hidden>
+                          <div class="row">
+                            <input type="hidden" data-type hidden>
+                            <input type="hidden" data-original_name hidden>
+                            <div class="form-group col-sm-4 mt-1 mt-sm-0" data-used-by="*">
+                              <label class="form-label d-block d-sm-none">Name</label>
+                              <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light"><i class="bi-dash" data-bs-toggle="tooltip"
+                                    title="" variable-icon></i></span>
+                                <input type="text" class="form-control form-control-sm" data-name title="Variable name">
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-8 mt-1 mt-sm-0" data-used-by="counter">
+                              <label class="form-label d-block d-sm-none">Value</label>
+                              <input type="number" class="form-control form-control-sm" data-value
+                                title="Variable value">
+                            </div>
+                            <div class="form-group col-sm-8 mt-1 mt-sm-0" data-used-by="text">
+                              <label class="form-label d-block d-sm-none">Value</label>
+                              <input type="text" class="form-control form-control-sm" data-value title="Variable text">
+                            </div>
+                          </div>
+                          <div class="collapse">
+                            <div class="form-group row mt-1" data-used-by="counter">
+                              <label class="col-sm-4 col-form-label col-form-label-sm text-sm-end">Goal</label>
+                              <div class="col-sm-8">
+                                <input type="number" class="form-control form-control-sm" data-goal
+                                  title="Variable goal">
+                              </div>
+                            </div>
+                            <div class="form-group row mt-1" data-used-by="counter">
+                              <label class="col-sm-4 col-form-label col-form-label-sm text-sm-end">Completion
+                                Text</label>
+                              <div class="col-sm-8">
+                                <input type="text" class="form-control form-control-sm" data-completion_text
+                                  title="Variable completion text">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-3 ms-sm-auto mt-3 mt-sm-0 text-end">
+                        <span data-bs-toggle="tooltip" class="d-inline-block d-none" title="More options"><button
+                            type="button" class="btn btn-sm" show-more href="#" aria-expanded="false"
+                            aria-label="More options">
+                            <i class="bi-chevron-down"></i></button></span>
+                        <span data-bs-toggle="tooltip" class="d-inline-block d-none" title="Save changes"><button
+                            type="button" data-s class="btn btn-sm btn-outline-primary" disabled
+                            aria-label="Save changes to variable">
+                            <i class="bi-check"></i></button></span>
+                        <span data-bs-toggle="tooltip" class="d-inline-block d-none" title="Undo changes"><button
+                            type="button" data-c class="btn btn-sm btn-outline-primary" disabled
+                            aria-label="Undo changes to variable">
+                            <i class="bi-arrow-counterclockwise"></i></button></span>
+                        <span data-bs-toggle="tooltip" class="d-inline-block" title="Delete variable"><button
+                            type="button" data-d class="btn btn-sm btn-secondary"
+                            aria-label="Delete variable to variable">
+                            <i class="bi-trash"></i></button></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+            <div class="tab-pane mb-3 row mb-3" id="templates-content">
+              <div class="col">
+                <h2><i class="pe-3 bi-tags"></i>Labels</h2>
+                <div class="spinner-border templates-spinner" role="status">
+                  <span class="visually-hidden">Requesting Templates...</span>
+                </div>
+                <div class="templates-spinner-fail" hidden>
+                  <h5>Could not load labels</h5>
+                  <p>If you are accessing this page from the machine running the app, please ensure the app has not
+                    terminated unexpectedly and check the log for any errors.</p>
+                </div>
+                <div class="templates-container" hidden>
+                  <div class="d-none d-sm-block">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="row p-2">
+                          <div class="col-4">Name</div>
+                          <div class="col">Template</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <form id="templates" onsubmit="return false;" autocomplete="off"></form>
+                  <div class="mb-3 d-grid">
+                    <button type="button" onclick="addNewTemplate();" class="btn btn-light"
+                      title="Add a new template"><i class="bi-plus"></i></button>
+                  </div>
+                  <div class="templates_row_template border-bottom vt-line" hidden>
+                    <div class="row p-2">
+                      <div class="col">
+                        <div class="row">
+                          <input type="hidden" data-original_name hidden>
+                          <div class="form-group col-sm-4 mt-1 mt-sm-0">
+                            <label class="form-label d-block d-sm-none">Name</label>
+                            <input type="text" class="form-control form-control-sm" data-name title="Template name">
+                          </div>
+                          <div class="col-sm mt-1 mt-sm-0">
+                            <label class="form-label d-block d-sm-none">Template</label>
+                            <textarea class="form-control" rows="5" data-template title="Template"></textarea>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-3 ms-sm-auto mt-3 mt-sm-0 text-end">
+                        <span data-bs-toggle="tooltip" class="d-inline-block" title="Save changes"><button type="button"
+                            data-s class="btn btn-sm btn-outline-primary" disabled aria-label="Save changes to label">
+                            <i class="bi-check"></i></button></span>
+                        <span data-bs-toggle="tooltip" class="d-inline-block" title="Undo changes"><button type="button"
+                            data-c class="btn btn-sm btn-outline-primary" disabled aria-label="Undo changes to label">
+                            <i class="bi-arrow-counterclockwise"></i></button></span>
+
+                        <span data-bs-toggle="tooltip" class="d-inline-block"><button type="button" data-hidden
+                            class="btn btn-sm btn-secondary" disabled aria-label="Toggle visibility of label">
+                            <i class="bi-eye-fill"></i></button></span>
+                        <span data-bs-toggle="tooltip" class="d-inline-block" title="Delete template"><button
+                            type="button" data-d class="btn btn-sm btn-secondary" aria-label="Delete label">
+                            <i class="bi-trash"></i></button></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div id="configuration" class="row tab-pane mb-3" role="tabpanel" aria-labelledby="configuration-tab">
+            <div class="col">
+              <h2 class="mb-4"><i class="pe-3 bi-gear"></i>Configuration</h2>
+              <form class="row pb-3" id="preferences">
+                <div class="col-sm-3 pb-2">
+                  <h4>Preferences</h4>
+                  <p>Options for this web UI</p>
+                </div>
+                <div class="col offset-sm-1">
+                  <div class="mb-3">
+                    <h5>Warning On Delete</h5>
+                    <div class="form-check form-switch mb-1">
+                      <input class="form-check-input" type="checkbox" id="enable_delete_warnings" checked>
+                      <label class="form-check-label" for="enable_delete_warnings">Enable warnings</label>
+                    </div>
+                    <small>Disabling this will stop the ui from asking you before deleteing a label or variable</small>
+                  </div>
+                  <div class="mb-3">
+                    <h5>CodeMirror For Label Templates</h5>
+                    <div class="form-check form-switch mb-1">
+                      <input class="form-check-input" type="checkbox" id="enable_codemirror" checked>
+                      <label class="form-check-label" for="enable_codemirror">Enable CodeMirror</label>
+                    </div>
+                    <small>Disabling this will stop the UI from using CodeMirror for template textareas.
+                      When disabled a plain textarea is displayed. This should make the web UI slightly more performant.
+                      Reloading the page after disabling this will mean the Codemirror scripts are not loaded at
+                      all.</small>
+                  </div>
+                </div>
+              </form>
+              <form class="row pt-3 border-top" id="configs">
+                <div class="col-sm-3 pb-2">
+                  <h4>App Settings</h4>
+                  <p>Options that alter how the app functions</p>
+                </div>
+                <div class="col offset-sm-1">
+                  <div class="spinner-border configs-spinner" role="status">
+                    <span class="visually-hidden">Requesting Configuration Settings...</span>
+                  </div>
+                  <div class="configs-spinner-fail" hidden>
+                    <h5>Could not load App Settings</h5>
+                    <p>For safety, this part of the UI is only visible from a browser on the machine running the app.
+                    </p>
+                    <p>If you are accessing this page from the machine running the app, please ensure the app has not
+                      terminated unexpectedly and check the log for any errors.</p>
+                  </div>
+                  <div class="configs-container">
+                    <div class="mb-4">
+                      <h5>Configuration File <span class="badge bg-secondary ms-1" data-bs-toggle="tooltip"
+                          title="Can be set via a command line argument at runtime">-cfg</span></h5>
+                      <input autocomplete="off" type="text" class="form-control-sm mb-1 form-control" data-configFile
+                        readonly>
+                      <p><small>App Settings are stored in this JSON file. Defaults to a folder in your home directory
+                          or a folder where you run the program
+                          from.
+                          <br>To change this setting you will need to stop the app and run it with an additional command
+                          line argument: <code>-cfg=&quot;/path/to/your/config/file.json&quot;</code></small>
+                      </p>
+                    </div>
+                    <div class="mb-4">
+                      <h5>Variables File</h5>
+                      <input autocomplete="off" type="text" class="form-control-sm mb-1 form-control" data-variablesFile
+                        readonly>
+                      <p>
+                        <small>All variables are saved in this JSON file.
+                          <br>This setting can only be changed by customising the JSON Configuration File</small>
+                      </p>
+                    </div>
+                    <div class="mb-4">
+                      <h5>Templates File</h5>
+                      <input autocomplete="off" type="text" class="form-control-sm mb-1 form-control" data-templatesFile
+                        readonly>
+                      <p>
+                        <small>All label templates are saved in a single json file at this
+                          location.
+                          <br>This setting can only be changed by customising the JSON Configuration File</small>
+                      </p>
+                    </div>
+                    <div class="mb-4">
+                      <h5>Label Directory</h5>
+                      <input autocomplete="off" type="text" class="form-control mb-1 form-control-sm"
+                        data-labelDirectory>
+                      <p>
+                        <small>The text labels generated from the templates are stored
+                          in this folder. Defaults to a folder where you run the program from.
+                        </small>
+                      </p>
+                    </div>
+                    <div class="mb-4">
+                      <h5>Port <span class="badge bg-secondary ms-1" data-bs-toggle="tooltip"
+                          title="Can be set via a command line argument at runtime">-p</span></h5>
+                      <input autocomplete="off" type="text" class="form-control mb-1 form-control-sm" data-port>
+                      <p>
+                        <small>Port the UI and API are accessed from.
+                          <br>
+                          This can also be set as a command line argument at runtime: <code>-p=9144</code></small>
+                      </p>
+                    </div>
+                    <div>
+                      <div>
+                        <span data-bs-toggle="tooltip" class="d-inline-block" title="Save changes"><button type="button"
+                            data-s class="btn btn-sm btn-outline-primary" disabled><i class="bi-check"></i>
+                            Save All</button></span>
+                        <span data-bs-toggle="tooltip" class="d-inline-block" title="Undo changes"><button type="button"
+                            data-c class="btn btn-sm btn-outline-primary" disabled><i
+                              class="bi-arrow-counterclockwise"></i> Undo All</button></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+
+
+
+
+
+          <style>
+            [id^="documentation-"] > *:first-child {
+              transition: color .25s ease-in-out;
+            }
+          </style>
+
+          <div id="documentation" class="row tab-pane mb-3" role="tabpanel" aria-labelledby="documentation-tab">
+            <div class="col">
+              <h2 class=""><i class="pe-3 bi-diagram-3"></i>Documentation</h2>
+
+              
+              <div id="documentation-Introduction" class="mb-4 pt-4">
+                <div class="row">
+                  <div class="col-sm-3">
+                    <h4><small><a href="#documentation-Introduction"><i class="bi-link-45deg pe-1"></i></a></small>Introduction</h4>
+                  </div>
+                  <div class="col-sm offset-sm-1 pt-5">
+
+                    <p>Overlay Label Manager is a templating tool for small text files. Its aim is to provide a single place to manage all of the Text Sources that you may want to place on your stream overlay.</p>
+                    <p>The app is essentially a web server which exposes end points to view and update the contents of simple text files. These text files can be as simple as plain text labels or include complex logic via an implementation of <a href="https://shopify.github.io/liquid/" target="_blank" rel="nofollow, noreferrer">Shopify's Liquid templating language</a>.</p>
+                    <p>Whilst a Text Source is the least memory intensive element to add to an overlay it doesn't provide much customisation and only updates every few seconds (every 60 seconds by defualt on OBS). This app makes each label available through a web url which can be used in a stream Browser Source. The browser view supports custom html layout files which makes the content of these infinitely customisable.</p>
+                    <p>Through a tunneling service like <a href="https://ngrok.com/" target="_blank" rel="nofollow, noreferrer">ngrok</a> the end points of the web server and UI can be shared with external users and tools. Use caution though as this is directly giving the outside world control of the text on your overlay and any file in the labels directory.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div id="documentation-Getting_Started" class="border-top mb-4 pt-4">
+                <div class="row">
+                  <div class="col-sm-3">
+                    <h4><small><a href="#documentation-Getting_Started"><i class="bi-link-45deg pe-1"></i></a></small>Getting Started</h4>
+                  </div>
+                  <div class="col-sm offset-sm-1 pt-5">
+
+                    <p>This section aims to get you up and running, the rest of the documentation covers specific usages and elements of the app.</p>
+                    <p>On the main page of the app (Variables & Labels) there are two sections; the first is the Variables section, which we will get into shortly, and the second is the Labels section. Creating a label makes a text file in the labels directory with a rendered version of the template. The template section of a label can be as simple as a plain piece of text.</p>
+
+                    <div class="alert alert-secondary">
+                      <p class="alert-heading fs-5">Create a Label</p>
+                      <hr>
+                      <ul class="mb-0">
+                        <li>Click the <button class="btn btn-sm btn-light disabled"><i class="bi-plus"></i></button> Add button under the Labels section to create your first label, give it a Name.</li>
+                        <li>We'll go with <code>bottle_count</code> for our example</li>
+                        <li>For the Template section we'll start simple:
+                          <br>
+                          <code>49 Bottles of Beer</code>
+                        </li>
+                        <li>Hit the <button class="btn btn-sm btn-primary disabled"><i class="bi-check"></i></button> Save button</li>
+                      </ul>
+                    </div>
+
+                    <p>If you check your labels directory you should now see a <code>bottle_count.txt</code> file in there, and opening it up it will have your template text in it.</p>
+                    <p class="alert alert-info">
+                      <i class="bi-info-circle-fill"></i> You can find the file path for you labels directory in the Configuration page, should be in a folder called labels in your home / user directory or it may have ended up the folder you ran the program from.
+                    </p>
+
+                    <p>Okay, so say you actually want this text file to be a little more complex. Looking at our example, we want to be able to increase the bottle count (probably not a great idea that far in...). This is where the Variables section comes in.</p>
+                    <p>As our <code>49</code> is just a plain number we could either use a Counter or a Text variable. The Counter element has a few features to make it easier to manage numbers so lets use that.</p>
+
+                    <div class="alert alert-secondary">
+                      <p class="alert-heading fs-5">Create a Variable</p>
+                      <hr>
+                      <ul class="mb-0">
+                        <li>Hit the <button class="btn btn-sm btn-light disabled"><i class="bi-plus"></i></button> Add button under the Variables section to create a new variable.</li>
+                        <li>Select Counter from the variable type selection</li>
+                        <li>Name: <code>bottles</code></li>
+                        <li>Value: <code>49</code></li>
+                        <li>Hit <button class="btn btn-sm btn-primary disabled"><i class="bi-check"></i></button> Save</li>
+                      </ul>
+                    </div>
+
+                    <p>Variable created and set. Now add a placeholder in our template for that variable</p>
+                      
+                    <div class="alert alert-secondary">
+                      <p class="alert-heading fs-5">Add a Variable to a Label Template</p>
+                      <hr>
+                      <ul class="mb-0">
+                        <li>Replace the <code>49</code> in our template with <code>{{ bottles.value }}</code>.
+                          <br>The Label Template should now be <code>{{ bottles.value }} Bottles of Beer</code></li>
+                        <li>Hit <button class="btn btn-sm btn-primary disabled"><i class="bi-check"></i></button> Save</li>
+                      </ul>
+                    </div>
+
+                    <p>Okay, so thats changed absolutely nothing at all at this point. Go ahead and check the <code>bottle_count.txt</code> file. (Close it and open it again if you didn't close it before). Should be all the same - the <code>bottles</code> variable has been inserted into the template correctly.</p>
+
+                    <p>Now if you increase the value of the variable, <code>50</code> (🍾), and hit save it will automatically update the contents of the text file.</p>
+
+                    <p>We can add a little more to our example to make it interesting.</p>
+
+                    <div class="alert alert-secondary">
+                      <p class="alert-heading fs-5">Add More Options to a Variable</p>
+                      <hr>
+                      <ul class="mb-0">
+                        <li>First head to the variable, click the <button class="btn btn-sm" disabled><i class="bi-chevron-down"></i></button> More Options<br>This exapnds out additional options for the variable</li>
+                        <li>Set a Goal: <code>60</code></li>
+                        <li>Set some Compeletion Text: <code>We drank all the beer</code></li>
+                        <li><button class="btn btn-sm btn-primary disabled"><i class="bi-check"></i></button> Save</li>
+                      </ul>
+                    </div>
+
+                    <p>Variable updated, now change the Label</p>
+                    <div class="alert alert-secondary">
+                      <p class="alert-heading fs-5">Use Multiple Variable Properties in a Label Template</p>
+                      <hr>
+                      <ul class="mb-0">
+                        <li>Head to the labels change the template text to:<br>
+                        <code>{{ bottles.value | divided_by: bottles.goal | times: 100.0 | round: 2 }}% of the beer is missing.</code></li>
+                        <li><button class="btn btn-sm btn-primary disabled"><i class="bi-check"></i></button> Save</li>
+                      </ul>
+                    </div>
+
+                    <p>The <code>bottle_count.txt</code> file should now read <code>83.33% of the beer is missing.</code> (81.67% if you didn't change it to 50 earlier...)</p>
+                    <p class="alert alert-secondary">Up the value on the variable to <code>120</code></p>
+                    <p><code>200% of the beer is missing.</code> oops..</p>
+
+
+                    <p>The template element can do <strong>a lot</strong> more than this. You're really going to want to take a look at the <a href="https://shopify.github.io/liquid/basics/introduction/" href="_blank" rel="nofollow, noreferrer">liquid documentation</a> for the full idea. 
+                      With liquid you can use the tags, filters and operators to easily create dynamic text content.</p>
+                    <p>For example if you wanted to insert the Compeletion Text when the value exceeds the goal</p>
+                    <p class="alert alert-secondary"><code>{% if bottles.value >= bottles.goal %}{{ bottles.completion_text }}{% else  %}{{ bottles.value | divided_by: bottles.goal | times: 100.0 | round: 2 }}% of the beer is missing.{% endif %}</code></p>
+                    <p><code>We drank all the beer</code>. Think thats enough of that example.</p>
+
+                    <div class="alert alert-info">
+                      <p><i class="bi-info-circle-fill"></i> There are 3 ways to view the rendered contents of your label.</p>
+                      <ol>                      
+                        <li>The text file in the labels directory <code>bottle_count.txt</code></li>
+                        <li>The Label API end point: <a href="/l/bottle_count">/l/bottle_count</a></li>
+                        <li>The Browser View end point: <a href="/bv/bottle_count?layout=default">/bv/bottle_count?layout=default</a>.</li>
+                      </ol>
+                      <p hidden>Theres more information about each of these in the Label section of the documentation</p>
+                    </div>
+
+                      <p hidden>Hopefully thats enough to get you going, feel free to check our more in depth sections of the documentation for detailed information about particular elements.</p>
+
+
+                  </div>
+                </div>
+              </div>
+
+              <div class="TODO" hidden>
+                
+                <div id="documentation-Configuration" class="border-top mb-4 pt-4">
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h4><small><a href="#documentation-Configuration"><i class="bi-link-45deg pe-1"></i></a></small>Configuration</h4>
+                    </div>
+                    <div class="col-sm offset-sm-1 pt-5">
+
+                      <p>TODO</p>
+
+                    </div>
+                  </div>
+                </div>
+                
+                <div id="documentation-Variables" class="border-top mb-4 pt-4">
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h4><small><a href="#documentation-Variables"><i class="bi-link-45deg pe-1"></i></a></small>Variables</h4>
+                    </div>
+                    <div class="col-sm offset-sm-1 pt-5">
+
+                      <p class="alert alert-info">
+                        <i class="bi-info-circle-fill"></i> Label and Variable names can only be the letters a-z, upper or lower case, numbers (not the first character), underscores and must be at most 20 characters.
+                        <br><br>
+                        &check; <code>text</code>
+                        <br>
+                        &check; <code>text2</code>
+                        <br>
+                        &check; <code>_text_w_underscore</code>
+                        <br>
+                        &times; <code>1stplace</code>
+                        <br>
+                        &times; <code>this_name_is_too_long</code>
+                        <br>
+                        &times; <code>fun/characters&amp;</code> <small>No fun allowed!</small>
+                      </p>
+
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="border-top mb-4 pt-4">
+                  <div id="documentation-Labels">
+                    <div class="row">
+                      <div class="col-sm-3">
+                        <h4><small><a href="#documentation-Labels"><i class="bi-link-45deg pe-1"></i></a></small>Labels</h4>
+                      </div>
+                        <div class="col-sm offset-sm-1 pt-5">
+                          <div>
+
+                            <p class="alert alert-info">
+                              <i class="bi-info-circle-fill"></i> Label and Variable names can only be the letters a-z, upper or lower case, numbers (not the first character), underscores and must be at most 20 characters.
+                              <br><br>
+                              &check; <code>text</code>
+                              <br>
+                              &check; <code>text2</code>
+                              <br>
+                              &check; <code>_text_w_underscore</code>
+                              <br>
+                              &times; <code>1stplace</code>
+                              <br>
+                              &times; <code>this_name_is_too_long</code>
+                              <br>
+                              &times; <code>fun/characters&amp;</code> <small>No fun allowed!</small>
+                            </p>
+
+                          </div>
+                        <div id="documentation-Labels-Templating">
+                          <h6><small><a href="#documentation-Labels-Templating"><i class="bi-link-45deg pe-1"></i></a></small>Templating</h6>
+
+                          <p>TODO</p>
+
+                        </div>
+                        <div id="documentation-Labels-Text_File">
+                          <h6><small><a href="#documentation-Labels-Text_File"><i class="bi-link-45deg pe-1"></i></a></small>Text File</h6>
+
+                          <p>TODO</p>
+
+                        </div>
+                        <div id="documentation-Labels-Browser_View">
+                          <h6><small><a href="#documentation-Labels-Browser_View"><i class="bi-link-45deg pe-1"></i></a></small>Browser View</h6>
+
+                          <p>TODO</p>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div id="documentation-API" class="border-top mb-4 pt-4">
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h4><small><a href="#documentation-API"><i class="bi-link-45deg pe-1"></i></a></small>API</h4>
+                    </div>
+                    <div class="col-sm offset-sm-1 pt-5">
+                      <div>
+
+                        <p>TODO</p>
+
+                      </div>
+                      <div>
+                        <div id="documentation-API-Variable">
+                          <h6><small><a href="#documentation-API-Variable"><i class="bi-link-45deg pe-1"></i></a></small>Variable</h6>
+
+                          <p>TODO</p>
+
+                        </div>
+                        <div id="documentation-API-Variable-GET">
+                          <p class="fw-bold fst-italic"><small><a href="#documentation-API-Variable-GET"><i class="bi-link-45deg pe-1"></i></a></small>GET</p>
+
+                          <p>TODO</p>
+
+                        </div>
+                        <div id="documentation-API-Variable-PUT">
+                          <p class="fw-bold fst-italic"><small><a href="#documentation-API-Variable-PUT"><i class="bi-link-45deg pe-1"></i></a></small>PUT</p>
+
+                          <p>TODO</p>
+
+                        </div>
+                      </div>
+                      <div>
+                        <div id="documentation-API-Template">
+                          <h6><small><a href="#documentation-API-Template"><i class="bi-link-45deg pe-1"></i></a></small>Template</h6>
+
+                          <p>TODO</p>
+
+                        </div>
+                        <div id="documentation-API-Template-GET">
+                          <p class="fw-bold fst-italic"><small><a href="#documentation-API-Template-GET"><i class="bi-link-45deg pe-1"></i></a></small>GET</p>
+
+                          <p>TODO</p>
+
+                        </div>
+                        <div id="documentation-API-Template-PUT">
+                          <p class="fw-bold fst-italic"><small><a href="#documentation-API-Template-PUT"><i class="bi-link-45deg pe-1"></i></a></small>PUT</p>
+
+                          <p>TODO</p>
+
+                        </div>
+                        <div id="documentation-API-Template-POST">
+                          <p class="fw-bold fst-italic"><small><a href="#documentation-API-Template-POST"><i class="bi-link-45deg pe-1"></i></a></small>POST</p>
+
+                          <p>TODO</p>
+
+                        </div>
+                      </div>
+                      <div>
+                        <div id="documentation-API-Label">
+                          <h6><small><a href="#documentation-API-Label"><i class="bi-link-45deg pe-1"></i></a></small>Label</h6>
+
+                          <p>TODO</p>
+
+                        </div>
+                        <div id="documentation-API-Label-GET">
+                          <p class="fw-bold fst-italic"><small><a href="#documentation-API-Label-GET"><i class="bi-link-45deg pe-1"></i></a></small>GET</p>
+
+                          <p>TODO</p>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="modal" tabindex="-1" id="delete_modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Delete <span del-type class="text-capitalize"></span>: <code
+              class="d-inline-block"><span del-name></span> <span del-var-type><i class="bi-label"></i></span></code>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to permanently delete the <code
+              class="d-inline-block"><span del-name></span> <span del-var-type><i class="bi-label"></i></span></code>
+            <span del-type></span>?
+          </p>
+          <div del-label-hint hidden>
+            <p>Deleteing this label template <strong>will not remove</strong> the
+              <code><span del-name></span>.txt</code> file from the labels folder.
+            </p>
+            <p>The txt file will be left in its current state, and will not be updated until a new
+              <code><span del-name></span></code> label is created. <strong>It is not possible to recover the label
+                template from the txt file.</strong>
+            </p>
+            <p>The <strong>browser view</strong> for this label (<code>/browser-view/?n=<span del-name></span></code>)
+              will respond with a <span class="font-monospace">404 Page Not Found</span> error.</p>
+          </div>
+          <p del-variable-hint hidden>Deleteing the variable will rebuild all labels that referenced it.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="modalDeleteAction();"><i class="bi-trash"></i>
+            Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <footer class="footer mt-auto py-3 bg-light">
+    <div class="container-fluid container-xxl">
+      <div class="row justify-content-end">
+        <div class="col-sm-auto">
+          <a class="d-inline-block fw-light text-secondary" href="https://ko-fi.com/decalibrate" target="_blank" rel="nofollow, noreferrer" data-bs-toggle="tooltip" title="Like the project? Support me on Ko-Fi!">
+            <i class="bi-kofi">
+              <svg id="ko-fi-cup-stroke" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 13.12">
+                <!-- https://storage.ko-fi.com/cdn/kofi_stroke_cup.svg --><defs><style>.cls-1{fill:#fff;stroke:#323a47;stroke-linecap:round;stroke-linejoin:round;}.cls-2{fill:#ff5e5b;}</style></defs><g><g><g><path id="path38" class="cls-1" d="M15.54,7.29a5.87,5.87,0,0,1-1.33,0V2.82h.9a2,2,0,0,1,2.06,2.09,2.21,2.21,0,0,1-1.63,2.38m3.87-3.15a4.34,4.34,0,0,0-1.78-2.8A4.8,4.8,0,0,0,14.91.5H1.17a.72.72,0,0,0-.67.71s0,.15,0,.15,0,6.08,0,9.33A2,2,0,0,0,2.58,12.6l9.28,0a3,3,0,0,0,.42-.05,2.65,2.65,0,0,0,1.87-2.91c3.44.19,5.87-2.24,5.26-5.47"/><path id="path42" class="cls-2" d="M7.24,10.08a.19.19,0,0,0,.24,0s2.19-2,3.17-3.14a2.1,2.1,0,0,0-.57-3.41,2.57,2.57,0,0,0-2.74.76A2.41,2.41,0,0,0,3.89,4,2.43,2.43,0,0,0,4,6.88C4.49,7.6,6.8,9.66,7.15,10l.09.07"/></g></g></g>
+              </svg>
+            </i> Support Me on Ko-Fi
+          </a>
+          <br>
+          <a class="d-inline-block fw-light text-secondary" href="https://github.com/decalibrate/overlay-label-manager/issues" target="_blank" rel="nofollow, noreferrer"  data-bs-toggle="tooltip" title="GitHub repo! Head here to see the source code for the project or raise an issue">
+            <i class="bi-github"></i> Raise an Issue on GitHub
+          </a>
+
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+    crossorigin="anonymous"></script>
+
+  <!-- JQuery - for now -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+  <script src="/index.js"></script>
+
+</body>
+
+</html>
