@@ -17,9 +17,9 @@ Through a tunneling service like [ngrok](https://ngrok.com) the end points of th
 
 ### Run the program
 
-When you run the program without any arguments it will create a folder `.overlaylabelmanager` this folder contains the app configuration and copies of all the avriables and label templates that you create.
+When you run the program without any arguments it will create a folder `.overlaylabelmanager` this folder contains the app configuration and copies of all the variables and label templates that you create.
 
-The app will try to save it in your `/home/UserName/` directory, or if that can't be found it will just create the folder in the directoyry where the app is executed from.
+The app will try to save it in your `/home/UserName/` directory, or if that can't be found it will just create the folder in the directory where the app is executed from.
 
 A second folder is created `labels` in the same directory. This folder will contain the rendered text files you create from the templating and variable system.
 
@@ -27,7 +27,7 @@ Once the initial load process is complete the web UI will be available. The URL 
 
 ```http://localhost:9144/```
 
-Visit the UI and check the configuration page, theres a couple of settings you can change there. Alternatively, look in the `.overlaylabelmanager/variables.json` file and change them directly.
+Visit the UI and check the configuration page, theres a couple of settings you can change there. Alternatively, look in the `.overlaylabelmanager/configuration.json` file and change them directly.
 
 If you're happy with everything there take a look at the Documentation page which has an example of setting up a simple Label template and Variable.
 
@@ -45,6 +45,9 @@ There are a number of arguments you can pass when you run the app that change th
 ---
 
 ## Building the binaries
+
+Prebuilt binaries are avaialble on the [Relases](/decalibrate/overlay-label-manager/releases) page
+
 
 The main program is written in Golang so once you have golang installed building the app is as simple as
 
