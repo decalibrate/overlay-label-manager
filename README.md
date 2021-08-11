@@ -46,7 +46,7 @@ There are a number of arguments you can pass when you run the app that change th
 
 ## Building the binaries
 
-Prebuilt binaries are avaialble on the [Relases](/decalibrate/overlay-label-manager/releases) page
+Prebuilt binaries are avaialble on the [Releases](https://github.com/decalibrate/overlay-label-manager/releases) page
 
 
 The main program is written in Golang so once you have golang installed building the app is as simple as
